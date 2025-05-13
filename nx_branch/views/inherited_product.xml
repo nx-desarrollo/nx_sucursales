@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="product_template_form_view_branch" model="ir.ui.view">
+            <field name="name">product.extended.product.form.branch</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view" />
+            <field name="arch" type="xml">
+                <field name="currency_id" position="before">
+                    <field name="branch_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="product_template_tree_view_inherit_branch" model="ir.ui.view">
+            <field name="name">product.extended.product.tree.branch</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_tree_view" />
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="branch_ids" widget="many2many_tags"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="product_product_view_form_branch" model="ir.ui.view">
+            <field name="name">product.product.view.form.branch</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <field name="currency_id" position="after">
+                    <field name="branch_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="product_product_tree_view_inherit_branch" model="ir.ui.view">
+            <field name="name">product.product.view.tree.branch</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="branch_ids" widget="many2many_tags"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

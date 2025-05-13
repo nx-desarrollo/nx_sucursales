@@ -1,0 +1,353 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* branch
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e-20230301\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-02 01:55+0000\n"
+"PO-Revision-Date: 2023-10-02 01:55+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__address
+msgid "Address"
+msgstr "Dirección"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_account_bank_statement.py:0
+#, python-format
+msgid ""
+"All the account entries lines must be processed in order to close the "
+"statement."
+msgstr ""
+"Todas las líneas de asientos contables deben procesarse para poder cerrar "
+"elestado de cuenta."
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_users__branch_ids
+msgid "Allowed Branch"
+msgstr "Sucursal permitida"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_bank_statement
+msgid "Bank Statement"
+msgstr "Extracto bancario"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_bank_statement_line
+msgid "Bank Statement Line"
+msgstr "Línea de extracto bancario"
+
+#. module: branch
+#: model:ir.model,name:branch.model_res_branch
+#: model:ir.model.fields,field_description:branch.field_account_bank_statement__branch_id
+#: model:ir.model.fields,field_description:branch.field_account_bank_statement_line__branch_id
+#: model:ir.model.fields,field_description:branch.field_account_invoice_report__branch_id
+#: model:ir.model.fields,field_description:branch.field_account_move__branch_id
+#: model:ir.model.fields,field_description:branch.field_account_move_line__branch_id
+#: model:ir.model.fields,field_description:branch.field_account_payment__branch_id
+#: model:ir.model.fields,field_description:branch.field_account_payment_register__branch_id
+#: model:ir.model.fields,field_description:branch.field_purchase_order__branch_id
+#: model:ir.model.fields,field_description:branch.field_purchase_order_line__branch_id
+#: model:ir.model.fields,field_description:branch.field_purchase_report__branch_id
+#: model:ir.model.fields,field_description:branch.field_res_users__branch_id
+#: model:ir.model.fields,field_description:branch.field_sale_order__branch_id
+#: model:ir.model.fields,field_description:branch.field_sale_report__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_location__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_move__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_move_line__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_picking__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_picking_type__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_quant__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_valuation_layer__branch_id
+#: model:ir.model.fields,field_description:branch.field_stock_warehouse__branch_id
+#: model:ir.module.category,name:branch.module_branch_management
+#: model_terms:ir.ui.view,arch_db:branch.view_order_form_inherit_branch
+#: model_terms:ir.ui.view,arch_db:branch.view_purchase_order_filter_inherit_branch
+#: model_terms:ir.ui.view,arch_db:branch.view_sales_order_filter_inherit_branch
+msgid "Branch"
+msgstr "Sucursal"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_res_users.py:0
+#, python-format
+msgid ""
+"Branch %(branch_name)s is not in the allowed branches for user %(user_name)s"
+" (%(branch_allowed)s)."
+msgstr ""
+"Sucursal %(branch_name)s no se permitén sucursales para el usuario "
+"%(user_name)s (%(branch_allowed)s)."
+
+#. module: branch
+#: model:ir.actions.act_window,name:branch.branch_action_res_branch
+#: model:ir.model.fields,field_description:branch.field_product_pricelist__branch_ids
+#: model:ir.model.fields,field_description:branch.field_account_journal__branch_ids
+#: model:ir.model.fields,field_description:branch.field_product_product__branch_ids
+#: model:ir.model.fields,field_description:branch.field_product_template__branch_ids
+#: model:ir.model.fields,field_description:branch.field_res_partner__branch_ids
+#: model:ir.ui.menu,name:branch.branch_menu_res_branch
+#: model_terms:ir.ui.view,arch_db:branch.branch_res_branch_view_form
+#: model_terms:ir.ui.view,arch_db:branch.branch_res_branch_view_tree
+msgid "Branches"
+msgstr "Sucursales"
+
+#. module: branch
+#: model_terms:ir.actions.act_window,help:branch.branch_action_res_branch
+msgid "Click here to create a new branch."
+msgstr "Haga clic aquí para crear una nueva sucursal."
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_stock_location.py:0
+#, python-format
+msgid ""
+"Configuration error\n"
+"You  must select same branch on a location as assigned on a warehouse configuration."
+msgstr ""
+"Error de configuración\n"
+"Debe seleccionar la misma sucursal en una ubicación asignada en la configuración del almacén."
+
+#. module: branch
+#: model:ir.model,name:branch.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__create_date
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: branch
+#: model:ir.model,name:branch.model_ir_http
+msgid "HTTP Routing"
+msgstr "Ruta HTTP "
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__id
+msgid "ID"
+msgstr ""
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_location
+msgid "Inventory Locations"
+msgstr "Ubicaciones de inventario"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_invoice_report
+msgid "Invoices Statistics"
+msgstr "Estadísticas de facturas"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_journal
+msgid "Journal"
+msgstr "Libro diario"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__write_uid
+msgid "Last Updated by"
+msgstr "Actualizado por última vez por"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__write_date
+msgid "Last Updated on"
+msgstr "Ultima actualización en"
+
+#. module: branch
+#: model:res.groups,name:branch.group_branch_user_manager
+msgid "Manager"
+msgstr "Sucursal"
+
+#. module: branch
+#: model:res.groups,name:branch.group_multi_branch
+msgid "Multi Branches"
+msgstr "Varias sucursales"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_stock_move.py:0
+#, python-format
+msgid "No negative quantities allowed"
+msgstr "No se permiten cantidades negativas"
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_payment
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_picking_type
+msgid "Picking Type"
+msgstr "Tipo de albarán"
+
+#. module: branch
+#: model:ir.model,name:branch.model_product_pricelist
+msgid "Pricelist"
+msgstr "Tarifa"
+
+#. module: branch
+#: model:ir.model,name:branch.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Movimientos de Producto (Stock Move Line)"
+
+#. module: branch
+#: model:ir.model,name:branch.model_purchase_order
+msgid "Purchase Order"
+msgstr "Línea orden de compra"
+
+#. module: branch
+#: model:ir.model,name:branch.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Línea de pedido de compra"
+
+#. module: branch
+#: model:ir.model,name:branch.model_purchase_report
+msgid "Purchase Report"
+msgstr "Línea orden de compra"
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_quant
+msgid "Quants"
+msgstr ""
+
+#. module: branch
+#: model:ir.model,name:branch.model_account_payment_register
+msgid "Register Payment"
+msgstr "Registrar pago"
+
+#. module: branch
+#: model:ir.model,name:branch.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Ventas. Anticipo pago factura"
+
+#. module: branch
+#: model:ir.model,name:branch.model_sale_report
+msgid "Sales Analysis Report"
+msgstr "Informe de análisis de ventas"
+
+#. module: branch
+#: model:ir.model,name:branch.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_account_bank_statement.py:0
+#, python-format
+msgid "Statement %s confirmed, journal items were created."
+msgstr "Declaración %s confirmada, se crearon elementos del diario."
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_move
+msgid "Stock Move"
+msgstr "Movimiento stock"
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_valuation_layer
+msgid "Stock Valuation Layer"
+msgstr "Capa de valoración de stock"
+
+#. module: branch
+#: model:ir.model.fields,field_description:branch.field_res_branch__telephone
+msgid "Telephone No"
+msgstr "Nro de Teléfono"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_account_move.py:0
+#: code:addons/custom_addons/l10n_ve_sucursales/branch/models/inherited_account_move.py:0
+#, python-format
+msgid ""
+"The current user does not have an assigned branch. Please assign a branch to"
+" the user or provide a branch explicitly."
+msgstr ""
+"El usuario actual no tiene una sucursal asignada. Asigne una sucursal a"
+"el usuario o proporcionar una rama explícitamente."
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_stock_move.py:0
+#, python-format
+msgid ""
+"The quantity done for the product \"%s\" doesn't respect the rounding "
+"precision defined on the unit of measure \"%s\". Please change the quantity "
+"done or the rounding precision of your unit of measure."
+msgstr ""
+"La cantidad realizada para el producto \"%s\" no respeta el redondeo "
+"Precisión definida en la unidad de medida \"%s\". Cambie la cantidad hecho o"
+" la precisión de redondeo de su unidad de medida."
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_picking
+msgid "Transfer"
+msgstr "Albarán"
+
+#. module: branch
+#: model:ir.model,name:branch.model_res_users
+#: model:res.groups,name:branch.group_branch_user
+msgid "User"
+msgstr "Usuario"
+
+#. module: branch
+#: model:ir.model,name:branch.model_stock_warehouse
+msgid "Warehouse"
+msgstr "Almacén"
+
+#. module: branch
+#. odoo-python
+#: code:addons/branch/models/inherited_stock_move.py:0
+#, python-format
+msgid ""
+"You need to supply a Lot/Serial Number for product: \n"
+" - "
+msgstr ""
+"Debe proporcionar un número de lote/serie para el producto: \n"
+" - "
