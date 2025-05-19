@@ -34,8 +34,8 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'nx_branch/static/src/js/session.js',
-            'nx_branch/static/src/js/branch_service.js',
+            # 'nx_branch/static/src/js/session.js',
+            # 'nx_branch/static/src/js/branch_service.js',
             'nx_branch/static/src/xml/branch.xml'
         ]
     },
