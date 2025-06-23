@@ -1,0 +1,4 @@
+16.0.0.1 ==>fixed issue of @api.model to @api.model_create_multi in create method and update many2many pos_branch_ids field parameter.
+
+Version 16.0.0.2: (03/03/23)
+	- Add a rule for pos payment that shows only branch records.

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="nimetrix_municipal_taxes_view_tree_inherit" model="ir.ui.view">
+        <field name="name">nimetrix.municipal.taxes.view.tree.inherit</field>
+        <field name="model">nimetrix.municipal.taxes</field>
+        <field name="inherit_id" ref="nimetrix_municipal_taxes.municipal_taxes_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="branch_id" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="nimetrix_municipal_taxes_view_form_inherit" model="ir.ui.view">
+        <field name="name">nimetrix.municipal.taxes.view.form.inherit</field>
+        <field name="model">nimetrix.municipal.taxes</field>
+        <field name="inherit_id" ref="nimetrix_municipal_taxes.municipal_taxes_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="inside">
+                <h4>
+                    <label for="branch_id"/>
+                    <field name="branch_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                </h4>
+            </xpath>
+        </field>
+    </record>
+</odoo>

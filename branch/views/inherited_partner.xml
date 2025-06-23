@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+	<record id="view_partner_structured_form_branch" model="ir.ui.view">
+        <field name="name">view_partner_structured_form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[1]/group[1]" position="inside">
+                <field name="branch_ids" widget="many2many_tags" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_partner_tree_branch" model="ir.ui.view">
+        <field name="name">view_partner_tree</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="branch_ids" widget="many2many_tags"/>
+            </field>
+        </field>
+    </record>
+</odoo>

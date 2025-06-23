@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="branch_analytic_plan" model="account.analytic.plan">
+		<field name="name">Sucursales</field>
+		<!-- "company_id" no existe en el modelo "account.analytic.plan" -->
+		<!-- <field name="company_id" ref="base.main_company"/> -->
+	</record>
+</odoo>

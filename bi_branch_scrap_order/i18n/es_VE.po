@@ -1,0 +1,32 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bi_branch_scrap_order
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e-20230301\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-02 02:02+0000\n"
+"PO-Revision-Date: 2023-10-02 02:02+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: bi_branch_scrap_order
+#: model:ir.model.fields,field_description:bi_branch_scrap_order.field_stock_move_line__branch_id
+#: model:ir.model.fields,field_description:bi_branch_scrap_order.field_stock_scrap__branch_id
+msgid "Branch"
+msgstr "Sucursal"
+
+#. module: bi_branch_scrap_order
+#: model:ir.model,name:bi_branch_scrap_order.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Movimientos de Producto (Stock Move Line)"
+
+#. module: bi_branch_scrap_order
+#: model:ir.model,name:bi_branch_scrap_order.model_stock_scrap
+msgid "Scrap"
+msgstr "Desechar"

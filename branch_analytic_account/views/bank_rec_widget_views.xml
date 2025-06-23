@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_bank_rec_widget_form" model="ir.ui.view">
+        <field name="name">bank.rec.widget.form</field>
+        <field name="model">bank.rec.widget</field>
+        <field name="inherit_id" ref="account_accountant.view_bank_rec_widget_form"/>
+        <field name="arch" type="xml">
+            <field name="journal_default_account_id" invisible="1"/>
+            <field name="company_id" invisible="1"/>
+            <field name="analytic_distribution" position="before">
+                <field name="branch_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>

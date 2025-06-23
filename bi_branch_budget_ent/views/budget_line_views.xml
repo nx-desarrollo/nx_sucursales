@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<odoo>
+	<data>
+		
+		<!-- Crossovered Budget Lines Views -->
+		
+		<record id="view_budget_line_form_inherit_bi_branch_budget_ent" model="ir.ui.view">
+            <field name="name">view.budget.line.line.form.inherit.bi.branch.budget.ent</field>
+            <field name="model">budget.line</field>
+            <field name="inherit_id" ref="account_budget.view_budget_line_form" />
+            <field name="arch" type="xml">
+                <field name="account_id" position="after">
+                    <field name="branch_id" options="{'no_quick_create': True, 'no_create_edit' : True}" readonly="0"/>
+                </field>
+            </field>
+        </record>
+        
+        
+        <record id="view_budget_line_tree_inherit_bi_branch_budget_ent" model="ir.ui.view">
+            <field name="name">view.budget.line.tree.inherit.bi.branch.budget.ent</field>
+            <field name="model">budget.line</field>
+            <field name="inherit_id" ref="account_budget.view_budget_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="company_id" position="after">
+                    <field name="branch_id" readonly="0"/>
+                </field>
+            </field>
+        </record>
+
+        
+	</data>
+</odoo>
