@@ -13,8 +13,8 @@ class AccountJournal(models.Model):
     @api.model
     def default_get(self, fields):
         rec = super(AccountJournal, self).default_get(fields)
-        if self.env.user.branch_id.id:
-            rec['branch_ids'] = self.env.user.branch_id.ids
+        if self.env.user.branch_id:
+            rec['branch_ids'] = [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
         return rec
 
     branch_ids = fields.Many2many('res.branch', string="Branches")

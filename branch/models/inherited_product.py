@@ -14,7 +14,7 @@ class ProductTemplateIn(models.Model):
         res = super(ProductTemplateIn, self).default_get(default_fields)
         if self.env.user.branch_id:
             res.update({
-                'branch_ids' : self.env.user.branch_id.ids or False
+                'branch_ids': [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
             })
         return res
 
