@@ -27,6 +27,11 @@ class StockMove(models.Model):
 			result[res]['branch_id'] = branch_id
 		return result
 
+	def _get_in_svl_vals(self, forced_quantity):
+		res = super()._get_in_svl_vals(forced_quantity)
+		for rec in res:
+			rec['branch_id'] = self.branch_id.id if self.branch_id else False
+		return res
 
 class StockMoveLine(models.Model):
 	_inherit = "stock.move.line"

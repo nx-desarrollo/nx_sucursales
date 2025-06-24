@@ -63,9 +63,10 @@ class PurchaseOrder(models.Model):
                 picking_type_id = branched_warehouse[0].in_type_id.id
         
         if not picking_type_id:
-            picking = self._default_picking_type()
-            picking_type_id = picking.id
+            picking_type = self._default_picking_type()
+            picking_type_id = picking_type.id if picking_type and picking_type.branch_id and picking_type.branch_id and picking_type.branch_id.id in self.env.user.branch_ids.ids else False
 
+        # raise UserError(f'picking_type_id: {picking_type_id}')
         res.update({
             'branch_id': branch_id,
             'picking_type_id': picking_type_id
@@ -73,17 +74,53 @@ class PurchaseOrder(models.Model):
 
         return res
 
-    branch_id = fields.Many2one('res.branch', string='Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
+    branch_id = fields.Many2one('res.branch', string='Sucursal', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
+
+    # Vaciar campo 'picking_type_id' al cambiar el valor de 'branch_id':
+    # @api.onchange('branch_id')
+    # def _onchange_branch_id(self):
+    #     for rec in self:
+    #         rec.picking_type_id = False
 
     @api.model_create_multi
     def create(self, vals_list):
-        res = super(PurchaseOrder, self).create(vals_list)
-        sale = self.env['sale.order'].search([('name', '=', self.origin)], limit=1)
-        if sale:
-            res.update({
-                'branch_id': sale.branch_id.id
-            })
+        res = super().create(vals_list)
+        for order in res:
+            if order.origin:
+                sale = self.env['sale.order'].search([('name', '=', order.origin)], limit=1)
+                if sale:
+                    order.branch_id = sale.branch_id.id
+
+            order._validate_branch_vs_picking()
         return res
+
+    def write(self, vals):
+        res = super().write(vals)
+        for order in self:
+            if vals.get('origin'):
+                sale = self.env['sale.order'].search([('name', '=', vals['origin'])], limit=1)
+                if sale:
+                    order.branch_id = sale.branch_id.id
+
+            order._validate_branch_vs_picking()
+        return res
+
+    def _validate_branch_vs_picking(self):
+        """
+        Verifica que picking_type_id pertenezca a la misma sucursal que el pedido.
+        """
+        for order in self:
+            branch = order.branch_id
+            picking_type = order.picking_type_id
+
+            # Obtener sucursal del picking_type
+            picking_branch = picking_type.warehouse_id.branch_id if picking_type and picking_type.warehouse_id else False
+
+            if branch and picking_type and picking_branch:
+                if branch.id != picking_branch.id:
+                    raise UserError(_(
+                        'El tipo de operación "%s" no pertenece a la sucursal "%s".'
+                    ) % (picking_type.name, branch.name))
 
     @api.model
     def _prepare_picking(self):

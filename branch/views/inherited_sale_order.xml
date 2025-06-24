@@ -54,5 +54,20 @@
                 </field>
             </field>
         </record>
+
+        <record id="sale_order_view_form_inherit_picking_type_branch_inherit" model="ir.ui.view">
+            <field name="name">sale.order.view.form.inherit.picking.type.branch.inherited</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='warehouse_id'][@options]" position="replace">
+                    <field name="warehouse_id"
+                        domain="[('branch_id', '=', branch_id)]"
+                        options="{'no_create': True}"
+                        force_save="1"
+                        readonly="state == 'sale'"/>
+                </xpath>
+            </field>
+        </record>         
     </data>
 </odoo>

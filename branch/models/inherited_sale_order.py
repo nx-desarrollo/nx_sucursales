@@ -9,7 +9,6 @@ from odoo.exceptions import UserError
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-
     @api.model_create_multi
     def default_get(self,fields):
         res = super(SaleOrder, self).default_get(fields)
@@ -34,7 +33,21 @@ class SaleOrder(models.Model):
 
     branch_id = fields.Many2one('res.branch', string="Branch", domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
-    
+    @api.depends('branch_id')
+    def _compute_warehouse_id(self):
+        """
+        Si no hay almacén y hay sucursal, asigna el primero en orden de prioridad.
+        Si ya hay almacén definido, lo deja.
+        """
+        for order in self:
+            order.warehouse_id = False
+            if not order.warehouse_id and order.branch_id:
+                warehouse = self.env['stock.warehouse'].search(
+                    [('branch_id', '=', order.branch_id.id)],
+                    order='sequence asc', limit=1
+                )
+                order.warehouse_id = warehouse.id if warehouse else False
+
     def _prepare_invoice(self):
         res = super(SaleOrder, self)._prepare_invoice()
         res['branch_id'] = self.branch_id.id
@@ -63,6 +76,34 @@ class SaleOrder(models.Model):
     #         branches_user = [rec for rec in branches]
     #         if not(branches_user and selected_brach.id in branches_user):
     #             raise UserError(_("Please select active branch only."))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for order in res:
+            order._validate_branch_vs_warehouse()
+        return res
+
+    def write(self, vals):
+        res = super().write(vals)
+        for order in self:
+            order._validate_branch_vs_warehouse()
+        return res
+
+    def _validate_branch_vs_warehouse(self):
+        """
+        Asegura que el almacén (warehouse_id) pertenezca a la misma sucursal (branch_id).
+        """
+        for order in self:
+            branch = order.branch_id
+            warehouse = order.warehouse_id
+            warehouse_branch = warehouse.branch_id if warehouse else False
+
+            if branch and warehouse and warehouse_branch:
+                if branch.id != warehouse_branch.id:
+                    raise UserError(_(
+                        'El almacén "%s" no pertenece a la sucursal "%s".'
+                    ) % (warehouse.display_name, branch.display_name))
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
