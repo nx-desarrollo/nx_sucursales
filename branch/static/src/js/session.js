@@ -26,8 +26,10 @@ SwitchBranchMenu.toggleDelay = 1000;
 export const systrayItem = {
     Component: SwitchBranchMenu,
     isDisplayed(env) {
-        const { availableBranches } = env.services.branch;
-        return Object.keys(availableBranches).length > 1;
+        // const { availableBranches } = env.services.branch;
+        // return Object.keys(availableBranches).length > 1;
+        console.log("Branches en env.services.branch:", env.services.branch?.availableBranches);
+        return true;  // fuerza su render para depurar        
     },
 };
 

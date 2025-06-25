@@ -49,8 +49,8 @@ export const branchService = {
                 return user_branches.allowed_branches.find(({ id }) => id === user_branches.current_branch);
             },
             setBranch(branchId) {
-                router.pushState({ cids: [branchId] }, { lock: true });
-                cookie.set("cids", [branchId]);
+                router.pushState({ bids: [branchId] }, { lock: true });  // cambia 'cids' por 'bids'
+                cookie.set("bids", [branchId]);                           // igual aquí
                 window.setTimeout(() => window.location.reload(), 1500);
             },
         };

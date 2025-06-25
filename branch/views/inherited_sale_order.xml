@@ -11,7 +11,7 @@
                     <!-- Add your fields or attributes here -->
                     <group string="Branch" name="branch">
                         <group>
-                            <field name="branch_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                            <field name="branch_id" domain="[('company_id', '=', company_id)]" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                         </group>
                     </group>
                 </xpath>

@@ -5,7 +5,7 @@
     "name" : "Multiple Branch Unit Operation Setup with Point Of Sales in Odoo",
     "version" : "18.0.0.2",
     "category" : "Point of Sales",
-    "depends" : ['base','point_of_sale','branch'],
+    "depends" : ['base','nx_pos_dual_currency','branch'],
     "author": "BrowseInfo",
     'summary': 'POS Multi Branch app user Multiple Branch Management POS Multi Branch app Multiple Unit Operating unit pos branch point of Sales Purchase branch pos branch pos branch unit branch unit pos for single company with Multi Branches multi company pos',
     "description": """
@@ -101,11 +101,10 @@ operating-Unit Operation for POS,operating-Unit Operation for Sales,operating-Un
     "installable": True,
     'license': 'OPL-1',
     'assets': {
-        'point_of_sale.assets': [
-            'bi_branch_pos/static/src/js/pos_extended.js',
-            'bi_branch_pos/static/src/xml/**/*',
+        'point_of_sale.assets_prod': [
+            'bi_branch_pos/static/src/**/*',
         ],
-    },
+    },    
     'live_test_url':'https://youtu.be/f-nqKb_jELg',
     "images":['static/description/Banner.gif'],
 }

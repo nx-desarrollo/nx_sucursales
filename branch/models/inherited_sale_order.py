@@ -5,7 +5,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
@@ -14,18 +13,19 @@ class SaleOrder(models.Model):
         res = super(SaleOrder, self).default_get(fields)
         branch_id = warehouse_id = False
         if self.env.user.branch_id:
-            branch_id = self.env.user.branch_id.id
+            branch_id = self.env.user.branch_id
         if branch_id:
-            branched_warehouse = self.env['stock.warehouse'].search([('branch_id','=',branch_id)])
+            branched_warehouse = self.env['stock.warehouse'].search([('branch_id', '=', branch_id.id)])
             if branched_warehouse:
                 warehouse_id = branched_warehouse.ids[0]
         
-        if not warehouse_id:
-            warehouse_id = self.env.user._get_default_warehouse_id()
-            warehouse_id = warehouse_id.id
+        # if not warehouse_id and branch_id:
+            # raise UserError(f'No se encontró un almacén para la sucursal {branch_id.name}.')
+            # warehouse_id = self.env.user._get_default_warehouse_id()
+            # warehouse_id = warehouse_id.id
 
         res.update({
-            'branch_id' : branch_id,
+            'branch_id' : branch_id.id if branch_id else False,
             'warehouse_id' : warehouse_id
         })
 
@@ -33,20 +33,28 @@ class SaleOrder(models.Model):
 
     branch_id = fields.Many2one('res.branch', string="Branch", domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
-    @api.depends('branch_id')
+    @api.depends('user_id', 'company_id', 'branch_id')
     def _compute_warehouse_id(self):
-        """
-        Si no hay almacén y hay sucursal, asigna el primero en orden de prioridad.
-        Si ya hay almacén definido, lo deja.
-        """
         for order in self:
-            order.warehouse_id = False
-            if not order.warehouse_id and order.branch_id:
-                warehouse = self.env['stock.warehouse'].search(
-                    [('branch_id', '=', order.branch_id.id)],
-                    order='sequence asc', limit=1
-                )
-                order.warehouse_id = warehouse.id if warehouse else False
+            # =================== Inicio de método nativo =================== #
+            default_warehouse_id = self.env['ir.default'].with_company(
+                order.company_id.id)._get_model_defaults('sale.order').get('warehouse_id')
+            if order.state in ['draft', 'sent'] or not order.ids:
+                # Should expect empty
+                if default_warehouse_id is not None:
+                    order.warehouse_id = default_warehouse_id
+                else:
+                    order.warehouse_id = order.user_id.with_company(order.company_id.id)._get_default_warehouse_id()
+            # =================== Fin de método nativo =================== #
+
+            # =================== Inicio de método aplicando sucursales =================== #
+            if order.branch_id:
+                branched_warehouse = self.env['stock.warehouse'].search([('branch_id', '=', order.branch_id.id)])
+                if branched_warehouse:
+                    order.warehouse_id = branched_warehouse.ids[0]
+                else:
+                    order.warehouse_id = False
+            # =================== Fin de método aplicando sucursales =================== #
 
     def _prepare_invoice(self):
         res = super(SaleOrder, self)._prepare_invoice()
@@ -95,15 +103,18 @@ class SaleOrder(models.Model):
         Asegura que el almacén (warehouse_id) pertenezca a la misma sucursal (branch_id).
         """
         for order in self:
-            branch = order.branch_id
-            warehouse = order.warehouse_id
-            warehouse_branch = warehouse.branch_id if warehouse else False
+            branch_id = order.branch_id
+            warehouse_id = order.warehouse_id
+            warehouse_branch = warehouse_id.branch_id if warehouse_id else False
 
-            if branch and warehouse and warehouse_branch:
-                if branch.id != warehouse_branch.id:
+            if not warehouse_id and branch_id:
+                raise UserError(f'Por favor, establezca un almacén para la sucursal {branch_id.name}.')
+
+            if branch_id and warehouse_id and warehouse_branch:
+                if branch_id.id != warehouse_branch.id:
                     raise UserError(_(
                         'El almacén "%s" no pertenece a la sucursal "%s".'
-                    ) % (warehouse.display_name, branch.display_name))
+                    ) % (warehouse_id.display_name, branch_id.name))
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'

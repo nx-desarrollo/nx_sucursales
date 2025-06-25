@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="purchase.purchase_order_form" />
             <field name="arch" type="xml">
                 <field name="incoterm_id" position="after">
-                    <field name="branch_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                    <field name="branch_id" domain="[('company_id', '=', company_id)]" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                 </field>
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <attribute name="context">{'branch_id' : branch_id}</attribute>

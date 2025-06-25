@@ -55,13 +55,25 @@ class AccountMove(models.Model):
 
         return journal
     
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for rec in res:
+            if rec.stock_move_id and rec.stock_move_id.branch_id:
+                rec.branch_id = rec.stock_move_id.branch_id
+            elif self.env.user.branch_id:
+                rec.branch_id = self.env.user.branch_id
+            else:
+                raise UserError(_("No se pudo asignar una sucursal. Asegúrese de que el movimiento o el usuario tengan una sucursal configurada."))
+        return res
+
     def write(self, vals):
         if 'branch_id' not in vals:
             for record in self.filtered(lambda r: not r.branch_id):
                 if self.env.user.branch_id:
                     vals['branch_id'] = self.env.user.branch_id.id
                 else:
-                    raise UserError(_("The current user does not have an assigned branch. Please assign a branch to the user or provide a branch explicitly."))
+                    raise UserError(_("El usuario actual no tiene una rama asignada. Asígnele una rama o proporciónela explícitamente."))
 
         return super(AccountMove, self).write(vals)
 

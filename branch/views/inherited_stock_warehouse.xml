@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="stock.view_warehouse"/>
             <field name="arch" type="xml">
                 <field name="code" position="after">
-                    <field name="branch_id" options="{'no_create_edit': True}"/>
+                    <field name="branch_id" domain="[('company_id', '=', company_id)]" options="{'no_create_edit': True}"/>
                 </field>
             </field>
         </record>
@@ -18,7 +18,7 @@
             <field name="inherit_id" ref="stock.view_picking_type_form"/>
             <field name="arch" type="xml">
                 <field name="warehouse_id" position="after">
-                    <field name="branch_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                    <field name="branch_id" domain="[('company_id', '=', company_id)]" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                 </field>
             </field>
         </record>
