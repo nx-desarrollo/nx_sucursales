@@ -19,7 +19,7 @@
             <field name="inherit_id" ref="point_of_sale.view_pos_session_tree"/>
             <field name="arch" type="xml">
                 <field name="config_id" position="after">
-                    <field name="branch_id"/>
+                    <field name="branch_id" domain="[('company_id', '=', company_id)]" />
                 </field>
             </field>
         </record>
@@ -35,7 +35,7 @@
                         <div class="o_setting_right_pane">
                             <div class="content-group mt16 row">
                                 <label for="pos_branch_ids" string="Sucursales"  class="col-lg-3 o_light_label"/>
-                                <field name="pos_branch_ids" widget="many2many_tags" />
+                                <field name="pos_branch_ids" widget="many2many_tags" domain="[('company_id', '=', company_id)]" />
                             </div>   
                         </div>
                     </div>

@@ -33,6 +33,12 @@ class StockMove(models.Model):
 			rec['branch_id'] = self.branch_id.id if self.branch_id else False
 		return res
 
+	def _prepare_account_move_vals(self, credit_account_id, debit_account_id, journal_id, qty, description, svl_id, cost):
+		res = super()._prepare_account_move_vals(credit_account_id, debit_account_id, journal_id, qty, description, svl_id, cost)
+		res['branch_id'] = self.picking_id.branch_id.id if self.picking_id and self.picking_id.branch_id else False
+		# raise UserError(f'res: {res}')
+		return res
+
 class StockMoveLine(models.Model):
 	_inherit = "stock.move.line"
 

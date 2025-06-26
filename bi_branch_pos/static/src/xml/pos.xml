@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
 	<t t-extend="OrderLinesReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension" owl="1">
-		<xpath expr="//div[hasclass('cashier')]" t-operation="after">
+		<xpath expr="//div[hasclass('pos-receipt-center-align')]" t-operation="after">
 			<div>Branch: <t t-esc="env.pos.pos_session.branch_id[1]" /></div>
 		</xpath>
 	</t>

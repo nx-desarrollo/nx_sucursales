@@ -7,17 +7,38 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 from odoo.tools import float_is_zero
 
+# class AccountMove(models.Model):
+#     _inherit = 'account.move'
 
+#     @api.model_create_multi
+#     def create(self, vals_list):
+#         res = super().create(vals_list)
+#         for rec in res:
+#             if not rec.pos_order_ids:
+#                 if rec.stock_move_id and rec.stock_move_id.branch_id:
+#                     rec.branch_id = rec.stock_move_id.branch_id
+#                 elif self.env.user.branch_id:
+#                     rec.branch_id = self.env.user.branch_id
+#                 else:
+#                     raise UserError(_("No se pudo asignar una sucursal. Asegúrese de que el movimiento o el usuario tengan una sucursal configurada."))
+#         raise UserError(f'res: {res}')
+#         return res
+        
 class pos_session(models.Model):
     _inherit = 'pos.session'
 
     @api.model_create_multi
     def create(self, vals):
         res = super(pos_session, self).create(vals)
-        user_pool = self.env['res.users']
-        branch_id = user_pool.browse(self.env.uid).branch_id.id or False
-        if branch_id in res.config_id.pos_branch_ids.ids:
-            res.branch_id = branch_id
+        # user_pool = self.env['res.users']
+        # branch_id = user_pool.browse(self.env.uid).branch_id.id or False
+        # if branch_id in res.config_id.pos_branch_ids.ids:
+        #     res.branch_id = branch_id
+        for rec in res:
+            branch_id = self.env.user.branch_id if self.env.user.branch_id else False
+            if res.config_id.pos_branch_ids:
+                branch_id = res.config_id.pos_branch_ids[0]
+            rec.branch_id = branch_id.id if branch_id else False
         return res
 
     def _loader_params_pos_session(self):
@@ -29,14 +50,18 @@ class pos_session(models.Model):
 
     branch_id = fields.Many2one('res.branch', 'Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
-
 class pos_config(models.Model):
     _inherit = 'pos.config'
 
     pos_branch_ids = fields.Many2many(
         'res.branch', 'user_id', 'branch_id', string='Branch')
 
-    
+    @api.model
+    def get_pos_branch_ids(self, config_ids):
+        pos_configs = self.browse(config_ids)
+        if pos_configs:
+            return [{'id': b.id, 'name': b.name} for b in pos_configs.pos_branch_ids]
+        return []
 
 class ResConfigSettings(models.TransientModel):
 	_inherit = 'res.config.settings'
@@ -50,48 +75,60 @@ class pos_order(models.Model):
     _inherit = 'pos.order'
 
     @api.model_create_multi
-    def default_get(self,fields):
-        res = super(pos_order, self).default_get(fields)
-        if self.env.user.branch_id:
-            branch_id = self.env.user.branch_id.id
-        res.update({
-            'branch_id' : branch_id
-        })
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for rec in res:
+            # raise UserError(f'rec.session_id.branch_id: {rec.session_id.branch_id}')
+            rec.branch_id = rec.session_id.branch_id.id if rec.session_id and rec.session_id.branch_id else False
         return res
-    
+
     @api.model
     def _payment_fields(self, order, ui_paymentline):
         values = super(pos_order, self)._payment_fields(order, ui_paymentline)
         values['branch_id'] = order.branch_id and order.branch_id.id or False
         return values
 
+    def _prepare_invoice_vals(self):
+        vals = super()._prepare_invoice_vals()
+        vals['branch_id'] = self.session_id.branch_id.id if self.session_id and self.session_id.branch_id else False
+        return vals
+
+    # OVERRIDE: Sucursales
     def _process_payment_lines(self, pos_order, order, pos_session, draft):
-        prec_acc = order.pricelist_id.currency_id.decimal_places
+        """Create account.bank.statement.lines from the dictionary given to the parent function.
 
-        order_bank_statement_lines = self.env['pos.payment'].search(
-            [('pos_order_id', '=', order.id)])
-        order_bank_statement_lines.unlink()
-        for payments in pos_order['statement_ids']:
-            if not float_is_zero(payments[2]['amount'], precision_digits=prec_acc):
-                order.add_payment(self._payment_fields(order, payments[2]))
+        If the payment_line is an updated version of an existing one, the existing payment_line will first be
+        removed before making a new one.
+        :param pos_order: dictionary representing the order.
+        :type pos_order: dict.
+        :param order: Order object the payment lines should belong to.
+        :type order: pos.order
+        :param pos_session: PoS session the order was created in.
+        :type pos_session: pos.session
+        :param draft: Indicate that the pos_order is not validated yet.
+        :type draft: bool.
+        """
+        prec_acc = order.currency_id.decimal_places
 
-        order.amount_paid = sum(order.payment_ids.mapped('amount'))
+        # Recompute amount paid because we don't trust the client
+        order.with_context(backend_recomputation=True).write({'amount_paid': sum(order.payment_ids.mapped('amount'))})
 
         if not draft and not float_is_zero(pos_order['amount_return'], prec_acc):
-            cash_payment_method = pos_session.payment_method_ids.filtered('is_cash_count')[
-                :1]
+            cash_payment_method = pos_session.payment_method_ids.filtered('is_cash_count')[:1]
             if not cash_payment_method:
-                raise UserError(
-                    _("No cash statement found for this session. Unable to record returned cash."))
+                raise UserError(_("No se encontró ningún extracto de caja para esta sesión. No se pudo registrar el efectivo devuelto."))
             return_payment_vals = {
                 'name': _('return'),
                 'pos_order_id': order.id,
-                'branch_id': order.branch_id.id,
                 'amount': -pos_order['amount_return'],
-                'payment_date': fields.Date.context_today(self),
+                'payment_date': fields.Datetime.now(),
                 'payment_method_id': cash_payment_method.id,
+                'is_change': True,
+                # UPDATE: Sucursal:
+                'branch_id': order.branch_id.id if order.branch_id else False,
             }
             order.add_payment(return_payment_vals)
+            order._compute_prices()
 
     def _prepare_invoice_vals(self):
         values = super(pos_order, self)._prepare_invoice_vals()
@@ -134,7 +171,6 @@ class pos_order(models.Model):
     def get_branch_id(self):
         for picking in self.picking_ids:
             picking.branch_id = self.branch_id.id
-
 
 class PosPaymentIn(models.Model):
     _inherit = "pos.payment"
