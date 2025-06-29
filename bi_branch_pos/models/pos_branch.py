@@ -50,6 +50,22 @@ class pos_session(models.Model):
 
     branch_id = fields.Many2one('res.branch', 'Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
+    # Agregar sucursal al crear una Entrada o Salida de Efectivo:
+    def _prepare_account_bank_statement_line_vals(self, session, sign, amount, reason, extras):
+        res = super()._prepare_account_bank_statement_line_vals(session, sign, amount, reason, extras)
+        if session.branch_id:
+            res.update({'branch_id': session.branch_id.id})
+        return res
+
+    # Método que crear Asiento Contable al validar (cerrar) sesión:
+    def _create_account_move(self, balancing_account=False, amount_to_balance=0, bank_payment_method_diffs=None):
+        data = super()._create_account_move(balancing_account=balancing_account, amount_to_balance=amount_to_balance, bank_payment_method_diffs=bank_payment_method_diffs)
+        if not self.branch_id:
+            raise UserError('No se encontró una sucursal establecida para ésta sesión.')
+        # Agregando la sucursal de la sesión al Asiento Contable:
+        self.move_id.write({'branch_id': self.branch_id.id})
+        return data
+
 class pos_config(models.Model):
     _inherit = 'pos.config'
 
@@ -90,7 +106,8 @@ class pos_order(models.Model):
 
     def _prepare_invoice_vals(self):
         vals = super()._prepare_invoice_vals()
-        vals['branch_id'] = self.session_id.branch_id.id if self.session_id and self.session_id.branch_id else False
+        if self.session_id and self.session_id.branch_id:
+            vals.update({'branch_id': self.session_id.branch_id.id})
         return vals
 
     # OVERRIDE: Sucursales
@@ -130,11 +147,6 @@ class pos_order(models.Model):
             order.add_payment(return_payment_vals)
             order._compute_prices()
 
-    def _prepare_invoice_vals(self):
-        values = super(pos_order, self)._prepare_invoice_vals()
-        values['branch_id'] = self.branch_id and self.branch_id.id or False
-        return values
-
     def _prepare_invoice_line(self, order_line):
         values = super(pos_order, self)._prepare_invoice_line(order_line)
         values['branch_id'] = self.branch_id and self.branch_id.id or False
@@ -172,10 +184,31 @@ class pos_order(models.Model):
         for picking in self.picking_ids:
             picking.branch_id = self.branch_id.id
 
-class PosPaymentIn(models.Model):
+class PosPayment(models.Model):
     _inherit = "pos.payment"
 
     branch_id = fields.Many2one('res.branch', 'Branch')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for rec in res:
+            # raise UserError(f'rec.session_id.branch_id: {rec.session_id.branch_id}')
+            rec.branch_id = rec.session_id.branch_id.id if rec.session_id and rec.session_id.branch_id else False
+        return res    
+
+    # Asientos contables del pago del punto de venta:
+    def _create_payment_moves(self, is_reverse=False):
+        res = super(PosPayment, self)._create_payment_moves(is_reverse)
+        # Nota: res son registros de account.move
+        for rec in res:
+            if rec.pos_payment_ids:
+                payment_id = rec.pos_payment_ids[0]
+                if payment_id.branch_id:
+                    rec.write({
+                        'branch_id': payment_id.branch_id.id
+                    })
+        return res
 
 class PosPaymentMethod(models.Model):
     _inherit = "pos.payment.method"

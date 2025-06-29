@@ -30,12 +30,21 @@ class AccountPaymentRegisterInv(models.TransientModel):
     @api.model
     def default_get(self, fields):
         rec = super(AccountPaymentRegisterInv, self).default_get(fields)
-        invoice_defaults = self.env['account.move'].browse(self._context.get('active_ids', []))
-        if invoice_defaults and len(invoice_defaults) == 1:
-            rec['branch_id'] = invoice_defaults.branch_id.id
+        move_id = self.env['account.move'].browse(self._context.get('move_id', False))
+        if move_id:
+            rec['branch_id'] = move_id.branch_id.id if move_id and move_id.branch_id else False 
+        else:
+            invoice_defaults = self.env['account.move'].browse(self._context.get('active_ids', []))
+            if invoice_defaults and len(invoice_defaults) == 1:
+                rec['branch_id'] = invoice_defaults.branch_id.id
         return rec
 
-    branch_id = fields.Many2one('res.branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
+    branch_id = fields.Many2one('res.branch')
+
+    def _create_payment_vals_from_wizard(self, batch_result):
+        payment_vals = super()._create_payment_vals_from_wizard(batch_result)
+        payment_vals['branch_id'] = self.branch_id.id if self.branch_id else False
+        return payment_vals
 
     # @api.onchange('branch_id')
     # def _onchange_branch_id(self):

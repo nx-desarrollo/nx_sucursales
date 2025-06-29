@@ -91,8 +91,19 @@ class AccountMove(models.Model):
         for record in self.filtered(lambda r: r.journal_id.type not in r._get_valid_journal_types() or r.branch_id not in r.journal_id.branch_ids):
             record.journal_id = record._search_default_journal()
 
+    def action_register_payment(self):
+        res = super().action_register_payment()
+        res['context'].update({'move_id': self.id})
+        # raise UserError(f'res: {res}')
+        return res
 
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
     branch_id = fields.Many2one('res.branch', string='Branch', related='move_id.branch_id', store=True)
+
+    # def action_register_payment(self, ctx=None):
+    #     res = super().action_register_payment(ctx=ctx)
+    #     context = res['context'] 
+    #     raise UserError(f'context: {context}')
+    #     return res
