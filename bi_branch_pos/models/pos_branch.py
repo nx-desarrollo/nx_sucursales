@@ -65,6 +65,53 @@ class pos_session(models.Model):
         # Agregando la sucursal de la sesión al Asiento Contable:
         self.move_id.write({'branch_id': self.branch_id.id})
         return data
+    
+    # OVERRIDE: Agregar branch_id de la sesión a la línea de extracto y su respectivo asiento
+    def _post_statement_difference(self, amount):
+        if amount:
+            # UPDATE: branch_id
+            branch_id = self.branch_id
+            if not branch_id:
+                raise UserError('No se encontró una sucursal establecida para ésta sesión.')
+
+            if self.config_id.cash_control:
+                st_line_vals = {
+                    'journal_id': self.cash_journal_id.id,
+                    'amount': amount,
+                    'date': self.statement_line_ids.sorted()[-1:].date or fields.Date.context_today(self),
+                    'pos_session_id': self.id,
+                    'branch_id': branch_id.id
+                }
+
+            if amount < 0.0:
+                if not self.cash_journal_id.loss_account_id:
+                    raise UserError(
+                        _('Please go on the %s journal and define a Loss Account. This account will be used to record cash difference.',
+                          self.cash_journal_id.name))
+
+                st_line_vals['payment_ref'] = _("Diferencia de efectivo observada durante el recuento (pérdida) - cierre")
+                st_line_vals['counterpart_account_id'] = self.cash_journal_id.loss_account_id.id
+            else:
+                # self.cash_register_difference  > 0.0
+                if not self.cash_journal_id.profit_account_id:
+                    raise UserError(
+                        _('Please go on the %s journal and define a Profit Account. This account will be used to record cash difference.',
+                          self.cash_journal_id.name))
+
+                st_line_vals['payment_ref'] = _("Diferencia de efectivo observada durante el recuento (ganancia) - cierre")
+                st_line_vals['counterpart_account_id'] = self.cash_journal_id.profit_account_id.id
+
+            created_line = self.env['account.bank.statement.line'].create(st_line_vals)
+
+            if created_line:
+                created_line.move_id.message_post(body=_(
+                    "Sesión relacionada: %(link)s",
+                    link=self._get_html_link()
+                ))
+                # Agregar la sucursal de la sesión al asiento de la línea de extracto:
+                created_line.move_id.write({
+                    'branch_id': branch_id.id
+                })
 
 class pos_config(models.Model):
     _inherit = 'pos.config'
@@ -183,6 +230,13 @@ class pos_order(models.Model):
     def get_branch_id(self):
         for picking in self.picking_ids:
             picking.branch_id = self.branch_id.id
+
+    def _create_order_picking(self):
+        super()._create_order_picking()
+        if self.session_id and self.session_id.branch_id:
+            pickings = self.env['stock.picking'].search([('pos_session_id', '=', self.session_id.id)])
+            if pickings:
+                pickings.write({'branch_id': self.session_id.branch_id.id})
 
 class PosPayment(models.Model):
     _inherit = "pos.payment"
