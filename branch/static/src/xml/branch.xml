@@ -2,29 +2,33 @@
 <templates id="default_branch_template" inherit_id="web.template" xml:space="preserve">
     <t t-name="branch.SwitchBranchMenu">
         <div class="o_switch_branch_menu dropdown d-none d-md-block">
-            <button
-                class="btn dropdown-toggle"
-                type="button"
-                id="switchBranchDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-                <i class="fa fa-building d-lg-none"/>
-                <span class="oe_topbar_name d-none d-lg-block" t-esc="branchService.currentBranch.name"/>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="switchBranchDropdown">
-                <t t-foreach="Object.values(branchService.availableBranches)" t-as="branch" t-key="branch.id">
-                    <li>
-                        <a
-                            href="#"
-                            class="dropdown-item d-flex justify-content-between align-items-center"
-                            t-att-class="branch.id === branchService.currentBranch.id ? 'active fw-bold' : ''"
-                            t-on-click.prevent="() => this.logIntoBranch(branch.id)">
-                            <t t-esc="branch.name"/>
-                            <!-- <i t-if="branch.id === branchService.currentBranch.id" class="fa fa-check text-primary"/> -->
-                        </a>
-                    </li>
-                </t>
-            </ul>
+            <t t-if="branchService.currentBranch">
+                <button
+                    class="btn dropdown-toggle"
+                    type="button"
+                    id="switchBranchDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fa fa-building d-lg-none"/>
+                    <span class="oe_topbar_name d-none d-lg-block" t-esc="branchService.currentBranch.name"/>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="switchBranchDropdown">
+                    <t t-foreach="Object.values(branchService.availableBranches)" t-as="branch" t-key="branch.id">
+                        <li>
+                            <a
+                                href="#"
+                                class="dropdown-item d-flex justify-content-between align-items-center"
+                                t-att-class="branch.id === branchService.currentBranch.id ? 'active fw-bold' : ''"
+                                t-on-click.prevent="() => this.logIntoBranch(branch.id)">
+                                <t t-esc="branch.name"/>
+                            </a>
+                        </li>
+                    </t>
+                </ul>
+            </t>
+            <t t-if="!branchService.currentBranch">
+                <span class="text-muted">Sin sucursales asignadas</span>
+            </t>
         </div>
     </t>
 </templates>

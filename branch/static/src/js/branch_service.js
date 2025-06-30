@@ -20,8 +20,26 @@ function parseBranchIds(bids) {
 
 export const branchService = {
     start() {
-        let bids;
+        const { user_branches } = session;
 
+        // Caso sin sucursales definidas
+        if (!user_branches || !user_branches.allowed_branches?.length) {
+            console.log("No hay sucursales definidas para el usuario.");
+            return {
+                availableBranches: [],
+                get allowedBranchIds() {
+                    return [];
+                },
+                get currentBranch() {
+                    return null;
+                },
+                setBranch() {
+                    console.log("No se puede cambiar de sucursal: ninguna definida.");
+                },
+            };
+        }
+
+        let bids;
         const hash = router?.current?.hash || {};
         if ("bids" in hash) {
             bids = parseBranchIds(hash.bids);
@@ -29,7 +47,6 @@ export const branchService = {
             bids = parseBranchIds(cookie.bids);
         }
 
-        const { user_branches } = session;
         const allowedBranchIds = user_branches.allowed_branches.map(({ id }) => id);
         const stringBranchIds = allowedBranchIds.join(",");
 
@@ -46,11 +63,11 @@ export const branchService = {
                 return allowedBranchIds.slice();
             },
             get currentBranch() {
-                return user_branches.allowed_branches.find(({ id }) => id === user_branches.current_branch);
+                return user_branches.allowed_branches.find(({ id }) => id === user_branches.current_branch) || null;
             },
             setBranch(branchId) {
-                router.pushState({ bids: [branchId] }, { lock: true });  // cambia 'cids' por 'bids'
-                cookie.set("bids", [branchId]);                           // igual aquí
+                router.pushState({ bids: [branchId] }, { lock: true });
+                cookie.set("bids", [branchId]);
                 window.setTimeout(() => window.location.reload(), 1500);
             },
         };
