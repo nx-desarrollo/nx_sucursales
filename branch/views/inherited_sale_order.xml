@@ -15,9 +15,9 @@
                         </group>
                     </group>
                 </xpath>
-                <!-- <xpath expr="//notebook/page[@name='order_lines']//list/field[@name='product_uom_qty']" position="before">
-                    <field name="branch_ids" invisible="1" widget="many2many_tags"/>
-                </xpath> -->
+                <xpath expr="//notebook/page[@name='order_lines']//list/field[@name='product_uom_qty']" position="before">
+                    <field name="branch_id" column_invisible="1" readonly="1" />
+                </xpath>
             </field>
         </record>
 

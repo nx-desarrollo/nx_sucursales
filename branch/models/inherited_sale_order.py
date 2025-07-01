@@ -61,30 +61,6 @@ class SaleOrder(models.Model):
         res['branch_id'] = self.branch_id.id
         return res
 
-    # @api.onchange('branch_id')
-    # def onchange_branch_id(self):
-    #     self.change_branch_id()
-
-    # @api.constrains('branch_id')
-    # def constrains_branch_id(self):
-    #     self.change_branch_id()
-
-    # @api.depends('branch_id')
-    # def change_branch_id(self):
-    #     for line in self.order_line:
-    #         line.branch_ids = False
-    #         line.branch_ids += self.branch_id
-
-    # @api.onchange('branch_id')
-    # def _onchange_branch_id(self):
-    #     selected_brach = self.branch_id
-    #     if selected_brach:
-    #         user_id = self.env['res.users'].browse(self.env.uid)
-    #         branches = user_id.sudo().branch_ids.ids
-    #         branches_user = [rec for rec in branches]
-    #         if not(branches_user and selected_brach.id in branches_user):
-    #             raise UserError(_("Please select active branch only."))
-
     @api.model_create_multi
     def create(self, vals_list):
         res = super().create(vals_list)
@@ -96,6 +72,9 @@ class SaleOrder(models.Model):
         res = super().write(vals)
         for order in self:
             order._validate_branch_vs_warehouse()
+            if order.order_line and order.branch_id: 
+                for line in order.order_line:
+                    line.branch_id = order.branch_id.id
         return res
 
     def _validate_branch_vs_warehouse(self):
@@ -116,11 +95,16 @@ class SaleOrder(models.Model):
                         'El almacén "%s" no pertenece a la sucursal "%s".'
                     ) % (warehouse_id.display_name, branch_id.name))
 
-# class SaleOrderLine(models.Model):
-#     _inherit = 'sale.order.line'
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
 
-#     def _get_branch(self):
-#         return self._context['allowed_branch_ids']
+    branch_id = fields.Many2one('res.branch', string="Branch")    
 
-#     branch_ids = fields.Many2many('res.branch', string="Branch", default=_get_branch)
-    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'order_id' in vals and 'branch_id' not in vals:
+                order = self.env['sale.order'].browse(vals['order_id'])
+                if order.branch_id:
+                    vals['branch_id'] = order.branch_id.id
+        return super().create(vals_list)    

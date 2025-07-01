@@ -10,37 +10,38 @@ from odoo.exceptions import UserError
 class HrDepartment(models.Model):
     _inherit = 'hr.department'
 
-    branch_id = fields.Many2one('res.branch', string='Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
+    branch_id = fields.Many2one('res.branch', string='Branch')
 
-    # @api.model
-    # def default_get(self, flds):
-    #     result = super(HrDepartment, self).default_get(flds)
-    #     user_obj = self.env['res.users']
-    #     branch_id = user_obj.browse(self.env.user.id).branch_id.id
-    #     result['branch_id'] = branch_id
-    #     return result
-
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrDepartment, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_id' : self.env.user.branch_id.id or False
+            })
+        return res
 
 class HrApplicant(models.Model):
     _inherit = 'hr.applicant'
 
-    branch_id = fields.Many2one('res.branch', string='Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
+    branch_id = fields.Many2one('res.branch', string='Branch')
 
-    # @api.model
-    # def default_get(self, flds):
-    #     result = super(HrApplicant, self).default_get(flds)
-    #     user_obj = self.env['res.users']
-    #     branch_id = user_obj.browse(self.env.user.id).branch_id.id
-    #     result['branch_id'] = branch_id
-    #     return result
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrApplicant, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_id' : self.env.user.branch_id.id or False
+            })
+        return res
 
     @api.onchange('job_id')
     def onchange_job_id(self):
         """ Override to get branch from department """
-
-        department = self.env['hr.department'].browse(self.department_id.id)
-        if department.branch_id:
-            self.branch_id = department.branch_id
+        for rec in self:
+            if rec.department_id and rec.department.branch_id:
+                department = self.env['hr.department'].browse(rec.department_id.id)
+                rec.branch_id = department.branch_id
 
     def create_employee_from_applicant(self):
         """ Create an employee from applicant """
@@ -51,19 +52,19 @@ class HrApplicant(models.Model):
             })
         return dict_act_window
 
-
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    # @api.model
-    # def default_get(self, fields):
-    #     rec = super(HrEmployee, self).default_get(fields)
-    #     if self.env.user.branch_id.id:
-    #         rec['branch_ids'] = self.env.user.branch_id.ids
-    #     return rec
-
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrEmployee, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_ids': [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
+            })
+        return res
 
     # @api.onchange('branch_ids')
     # def _onchange_branch_ids(self):
@@ -79,35 +80,34 @@ class HrEmployeePublic(models.Model):
 
     branch_ids = fields.Many2many('res.branch', compute="_compute_branches", string='Branches')
 
-    @api.depends('employee_id')
+    @api.depends('employee_id', 'employee_id.branch_ids')
     def _compute_branches(self):
         for rec in self:
-            rec.branch_ids = rec.employee_id.branch_ids.ids
+            rec.branch_ids = [(6, 0, rec.employee_id.branch_ids.ids)] if rec.employee_id and rec.employee_id.branch_ids else False
 
 class HrAttendance(models.Model):
     _inherit = 'hr.attendance'
+    
+    # El dominio se agrega por Python porque no existe el campo 'company_id' en 'hr.attendance' y para evitar un campo related a employee_id.company_id.
+    branch_ids = fields.Many2many('res.branch', string='Branches', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
-    branch_ids = fields.Many2many('res.branch', string='Branches')
-
-    # @api.model
-    # def default_get(self, flds):
-    #     """ Override to get default branch from employee """
-    #     result = super(HrAttendance, self).default_get(flds)
-    #     employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
-
-    #     if employee_id:
-    #         if employee_id.branch_ids:
-    #             result['branch_ids'] = employee_id.branch_ids.ids
-    #     return result
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrAttendance, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_ids': [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
+            })
+        return res
 
     @api.onchange('employee_id')
     def get_branch(self):
-        if self.employee_id:
-            if self.employee_id.branch_ids:
-                self.update({'branch_ids': self.employee_id.branch_ids.ids})
-            else:
-                self.update({'branch_ids': False})
-
+        for rec in self:
+            if rec.employee_id:
+                if rec.employee_id.branch_ids:
+                    rec.write({'branch_ids': [(6, 0, rec.employee_id.branch_ids.ids)]})
+                else:
+                    rec.write({'branch_ids': False})
 
 class HrContract(models.Model):
     _inherit = 'hr.contract'
@@ -116,81 +116,78 @@ class HrContract(models.Model):
 
     @api.onchange('employee_id')
     def _onchange_employee_id(self):
-        if self.employee_id:
-            self.branch_id = self.employee_id.branch_ids.ids
-
+        for rec in self:
+            if rec.employee_id:
+                rec.branch_ids = [(6, 0, rec.employee_id.branch_ids.ids)]
 
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    # @api.model
-    # def default_get(self, flds):
-    #     """ Override to get default branch from employee """
-    #     result = super(HrPayslip, self).default_get(flds)
-    #     employee_id = self.env['hr.employee'].browse(self._context.get('active_id'))
-    #     result['branch_ids'] = employee_id.branch_ids.ids
-    #     return result
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrPayslip, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_ids': [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
+            })
+        return res
 
     @api.onchange('employee_id')
     def get_branch(self):
-        if self.employee_id:
-            if self.employee_id.branch_ids:
-                self.update({'branch_ids': self.employee_id.branch_ids.ids})
-            else:
-                self.update({'branch_ids': False})
-
+        for rec in self:
+            if rec.employee_id:
+                if rec.employee_id.branch_ids:
+                    rec.write({'branch_ids': [(6, 0, rec.employee_id.branch_ids.ids)]})
+                else:
+                    rec.write({'branch_ids': False})
 
 class HrExpenseSheet(models.Model):
     _inherit = 'hr.expense.sheet'
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    # @api.model
-    # def default_get(self, flds):
-    #     """ Override to get default branch from employee """
-    #     result = super(HrExpenseSheet, self).default_get(flds)
-    #     employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
-
-    #     if employee_id:
-    #         if employee_id.branch_ids:
-    #             result['branch_ids'] = employee_id.branch_ids.ids
-    #     return result
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrExpenseSheet, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_ids': [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
+            })
+        return res
 
     @api.onchange('employee_id')
     def get_branch(self):
-        if self.employee_id:
-            if self.employee_id.branch_ids:
-                self.update({'branch_ids': self.employee_id.branch_ids.ids})
-            else:
-                self.update({'branch_ids': False})
-
+        for rec in self:
+            if rec.employee_id:
+                if rec.employee_id.branch_ids:
+                    rec.write({'branch_ids': [(6, 0, rec.employee_id.branch_ids.ids)]})
+                else:
+                    rec.write({'branch_ids': False})
 
 class HrExpense(models.Model):
     _inherit = 'hr.expense'
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    # @api.model
-    # def default_get(self, flds):
-    #     """ Override to get default branch from employee """
-    #     result = super(HrExpense, self).default_get(flds)
-
-    #     employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
-
-    #     if employee_id:
-    #         if employee_id.branch_ids:
-    #             result['branch_ids'] = employee_id.branch_ids.ids
-    #     return result
+    @api.model
+    def default_get(self, default_fields):
+        res = super(HrExpense, self).default_get(default_fields)
+        if self.env.user.branch_id:
+            res.update({
+                'branch_ids': [(6, 0, self.env.user.branch_id.ids)] if self.env.user.branch_id else False
+            })
+        return res
 
     @api.onchange('employee_id')
     def get_branch(self):
-        if self.employee_id:
-            if self.employee_id.branch_ids:
-                self.update({'branch_ids': self.employee_id.branch_ids.ids})
-            else:
-                self.update({'branch_ids': False})
+        for rec in self:
+            if rec.employee_id:
+                if rec.employee_id.branch_ids:
+                    rec.write({'branch_ids': [(6, 0, rec.employee_id.branch_ids.ids)]})
+                else:
+                    rec.write({'branch_ids': False})
 
     def _get_default_expense_sheet_values(self):
         values = super(HrExpense, self)._get_default_expense_sheet_values()
