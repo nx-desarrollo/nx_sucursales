@@ -109,7 +109,7 @@ operating-Unit Operation for POS,operating-Unit Operation for Sales,operating-Un
         'views/inherited_account_bank_statement.xml',
         'wizard/inherited_account_payment.xml',
         'views/inherited_product.xml',
-        'views/inherited_partner.xml',
+        # 'views/inherited_partner.xml',
         #'views/inherited_stock_quant_view.xml',
         'views/account_journal_views.xml',
         'views/product_pricelist_views.xml',
