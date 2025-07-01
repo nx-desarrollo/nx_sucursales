@@ -231,13 +231,6 @@ class pos_order(models.Model):
         for picking in self.picking_ids:
             picking.branch_id = self.branch_id.id
 
-    def _create_order_picking(self):
-        super()._create_order_picking()
-        if self.session_id and self.session_id.branch_id:
-            pickings = self.env['stock.picking'].search([('pos_session_id', '=', self.session_id.id)])
-            if pickings:
-                pickings.write({'branch_id': self.session_id.branch_id.id})
-
 class PosPayment(models.Model):
     _inherit = "pos.payment"
 
