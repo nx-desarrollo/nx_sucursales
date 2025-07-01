@@ -116,11 +116,11 @@ class SaleOrder(models.Model):
                         'El almacén "%s" no pertenece a la sucursal "%s".'
                     ) % (warehouse_id.display_name, branch_id.name))
 
-class SaleOrderLine(models.Model):
-    _inherit = 'sale.order.line'
+# class SaleOrderLine(models.Model):
+#     _inherit = 'sale.order.line'
 
-    def _get_branch(self):
-        return self._context['allowed_branch_ids']
+#     def _get_branch(self):
+#         return self._context['allowed_branch_ids']
 
-    branch_ids = fields.Many2many('res.branch', string="Branch", default=_get_branch)
+#     branch_ids = fields.Many2many('res.branch', string="Branch", default=_get_branch)
     
