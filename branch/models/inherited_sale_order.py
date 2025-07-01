@@ -61,19 +61,19 @@ class SaleOrder(models.Model):
         res['branch_id'] = self.branch_id.id
         return res
 
-    @api.onchange('branch_id')
-    def onchange_branch_id(self):
-        self.change_branch_id()
+    # @api.onchange('branch_id')
+    # def onchange_branch_id(self):
+    #     self.change_branch_id()
 
-    @api.constrains('branch_id')
-    def constrains_branch_id(self):
-        self.change_branch_id()
+    # @api.constrains('branch_id')
+    # def constrains_branch_id(self):
+    #     self.change_branch_id()
 
-    @api.depends('branch_id')
-    def change_branch_id(self):
-        for line in self.order_line:
-            line.branch_ids = False
-            line.branch_ids += self.branch_id
+    # @api.depends('branch_id')
+    # def change_branch_id(self):
+    #     for line in self.order_line:
+    #         line.branch_ids = False
+    #         line.branch_ids += self.branch_id
 
     # @api.onchange('branch_id')
     # def _onchange_branch_id(self):
