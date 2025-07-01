@@ -12,13 +12,13 @@ class HrDepartment(models.Model):
 
     branch_id = fields.Many2one('res.branch', string='Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
-    @api.model
-    def default_get(self, flds):
-        result = super(HrDepartment, self).default_get(flds)
-        user_obj = self.env['res.users']
-        branch_id = user_obj.browse(self.env.user.id).branch_id.id
-        result['branch_id'] = branch_id
-        return result
+    # @api.model
+    # def default_get(self, flds):
+    #     result = super(HrDepartment, self).default_get(flds)
+    #     user_obj = self.env['res.users']
+    #     branch_id = user_obj.browse(self.env.user.id).branch_id.id
+    #     result['branch_id'] = branch_id
+    #     return result
 
 
 class HrApplicant(models.Model):
@@ -26,13 +26,13 @@ class HrApplicant(models.Model):
 
     branch_id = fields.Many2one('res.branch', string='Branch', domain=lambda self: [('id','in',[branch.id for branch in self.env.user.branch_ids])])
 
-    @api.model
-    def default_get(self, flds):
-        result = super(HrApplicant, self).default_get(flds)
-        user_obj = self.env['res.users']
-        branch_id = user_obj.browse(self.env.user.id).branch_id.id
-        result['branch_id'] = branch_id
-        return result
+    # @api.model
+    # def default_get(self, flds):
+    #     result = super(HrApplicant, self).default_get(flds)
+    #     user_obj = self.env['res.users']
+    #     branch_id = user_obj.browse(self.env.user.id).branch_id.id
+    #     result['branch_id'] = branch_id
+    #     return result
 
     @api.onchange('job_id')
     def onchange_job_id(self):
@@ -57,12 +57,12 @@ class HrEmployee(models.Model):
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    @api.model
-    def default_get(self, fields):
-        rec = super(HrEmployee, self).default_get(fields)
-        if self.env.user.branch_id.id:
-            rec['branch_ids'] = self.env.user.branch_id.ids
-        return rec
+    # @api.model
+    # def default_get(self, fields):
+    #     rec = super(HrEmployee, self).default_get(fields)
+    #     if self.env.user.branch_id.id:
+    #         rec['branch_ids'] = self.env.user.branch_id.ids
+    #     return rec
 
 
     # @api.onchange('branch_ids')
@@ -89,16 +89,16 @@ class HrAttendance(models.Model):
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    @api.model
-    def default_get(self, flds):
-        """ Override to get default branch from employee """
-        result = super(HrAttendance, self).default_get(flds)
-        employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
+    # @api.model
+    # def default_get(self, flds):
+    #     """ Override to get default branch from employee """
+    #     result = super(HrAttendance, self).default_get(flds)
+    #     employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
 
-        if employee_id:
-            if employee_id.branch_ids:
-                result['branch_ids'] = employee_id.branch_ids.ids
-        return result
+    #     if employee_id:
+    #         if employee_id.branch_ids:
+    #             result['branch_ids'] = employee_id.branch_ids.ids
+    #     return result
 
     @api.onchange('employee_id')
     def get_branch(self):
@@ -125,13 +125,13 @@ class HrPayslip(models.Model):
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    @api.model
-    def default_get(self, flds):
-        """ Override to get default branch from employee """
-        result = super(HrPayslip, self).default_get(flds)
-        employee_id = self.env['hr.employee'].browse(self._context.get('active_id'))
-        result['branch_ids'] = employee_id.branch_ids.ids
-        return result
+    # @api.model
+    # def default_get(self, flds):
+    #     """ Override to get default branch from employee """
+    #     result = super(HrPayslip, self).default_get(flds)
+    #     employee_id = self.env['hr.employee'].browse(self._context.get('active_id'))
+    #     result['branch_ids'] = employee_id.branch_ids.ids
+    #     return result
 
     @api.onchange('employee_id')
     def get_branch(self):
@@ -147,16 +147,16 @@ class HrExpenseSheet(models.Model):
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    @api.model
-    def default_get(self, flds):
-        """ Override to get default branch from employee """
-        result = super(HrExpenseSheet, self).default_get(flds)
-        employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
+    # @api.model
+    # def default_get(self, flds):
+    #     """ Override to get default branch from employee """
+    #     result = super(HrExpenseSheet, self).default_get(flds)
+    #     employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
 
-        if employee_id:
-            if employee_id.branch_ids:
-                result['branch_ids'] = employee_id.branch_ids.ids
-        return result
+    #     if employee_id:
+    #         if employee_id.branch_ids:
+    #             result['branch_ids'] = employee_id.branch_ids.ids
+    #     return result
 
     @api.onchange('employee_id')
     def get_branch(self):
@@ -172,17 +172,17 @@ class HrExpense(models.Model):
 
     branch_ids = fields.Many2many('res.branch', string='Branches')
 
-    @api.model
-    def default_get(self, flds):
-        """ Override to get default branch from employee """
-        result = super(HrExpense, self).default_get(flds)
+    # @api.model
+    # def default_get(self, flds):
+    #     """ Override to get default branch from employee """
+    #     result = super(HrExpense, self).default_get(flds)
 
-        employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
+    #     employee_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
 
-        if employee_id:
-            if employee_id.branch_ids:
-                result['branch_ids'] = employee_id.branch_ids.ids
-        return result
+    #     if employee_id:
+    #         if employee_id.branch_ids:
+    #             result['branch_ids'] = employee_id.branch_ids.ids
+    #     return result
 
     @api.onchange('employee_id')
     def get_branch(self):
