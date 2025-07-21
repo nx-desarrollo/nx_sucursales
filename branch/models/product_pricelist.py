@@ -11,7 +11,7 @@ class ProductPricelist(models.Model):
     def default_get(self, fields):
         rec = super(ProductPricelist, self).default_get(fields)
         if self.env.user.branch_ids.ids:
-            rec['branch_ids'] = self.env.user.branch_id.ids
+            rec['branch_ids'] = [(6, 0, self.env.user.branch_ids.ids)]
         return rec
     
     branch_ids = fields.Many2many('res.branch',string="Branches")
