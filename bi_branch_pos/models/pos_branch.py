@@ -265,18 +265,14 @@ class PosPayment(models.Model):
                 pos_payment_ids = payment.ids
                 payment_amount = payment.amount
 
-            # UPDATE: Obtener recorsets de 'pos.payment':
-            recordsets_pos_payment_ids = self.env['account.move'].browse(pos_payment_ids)
-
             payment_move = self.env['account.move'].with_context(default_journal_id=journal.id).create({
                 'journal_id': journal.id,
                 'date': fields.Date.context_today(order, order.date_order),
                 'ref': _('Pago de la factura para %(order)s (%(account_move)s) con %(payment_method)s', order=order.name, account_move=order.account_move.name, payment_method=payment_method.name),
                 'pos_payment_ids': pos_payment_ids,
                 # UPDATE: Sucursal:
-                'branch_id': recordsets_pos_payment_ids[0].branch_id.id if recordsets_pos_payment_ids and recordsets_pos_payment_ids[0].branch_id else False,
+                'branch_id': payment.branch_id.id,
             })
-            # raise UserError(f'payment_move: {payment_move.branch_id}')
             result |= payment_move
             payment.write({'account_move_id': payment_move.id})
             amounts = pos_session._update_amounts({'amount': 0, 'amount_converted': 0}, {'amount': payment_amount}, payment.payment_date)
