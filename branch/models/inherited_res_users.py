@@ -29,12 +29,13 @@ class ResUsers(models.Model):
                     branch_allowed=', '.join(user.mapped('branch_ids.name')))
                 )
     def _create_user_from_template(self, values):
-        partner = self.env['res.partner'].browse([values['partner_id']])
-        if partner.branch_ids:
-            values.update({'branch_id': partner.branch_ids[0].id})
-            values.update({'branch_ids': partner.branch_ids.ids})
-        else:
-            raise ValidationError(f'El contacto seleccionado ({partner.name}) no tiene configurada una sucursal para la creación del usuario.')
+        if values.get('partner_id'):
+            partner = self.env['res.partner'].browse([values['partner_id']])
+            if partner.branch_ids:
+                values.update({'branch_id': partner.branch_ids[0].id})
+                values.update({'branch_ids': partner.branch_ids.ids})
+            else:
+                raise ValidationError(f'El contacto seleccionado ({partner.name}) no tiene configurada una sucursal para la creación del usuario.')
         res = super(ResUsers, self)._create_user_from_template(values)
         return res
     
