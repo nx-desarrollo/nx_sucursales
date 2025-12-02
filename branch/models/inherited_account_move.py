@@ -9,7 +9,6 @@ class AccountMove(models.Model):
     branch_id = fields.Many2one(
         comodel_name='res.branch',
         string='Branch',
-        states={'draft': [('readonly', False)]},
         default=lambda self: self.env.user.branch_id,
         domain=lambda self: [('id', 'in', self.env.user.branch_ids.ids)]
     )
