@@ -6,7 +6,12 @@ class AccountPayment(models.Model):
     _inherit = "account.payment"
 
     # En la V16 éste campo no está definido:
-    branch_id = fields.Many2one('res.branch', string="Sucursal")
+    branch_id = fields.Many2one(
+        comodel_name='res.branch',
+        string='Branch',
+        default=lambda self: self.env.user.branch_id,
+        domain=lambda self: [('id', 'in', self.env.user.branch_ids.ids)]
+    )
 
     @api.depends('payment_type', 'branch_id')
     def _compute_available_journal_ids(self):
